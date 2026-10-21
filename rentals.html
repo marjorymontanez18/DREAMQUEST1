@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Rental Catalog — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="rentals">
+    <header>
+        <nav class="nav"><a class="brand" href="index.html"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT
+                        ESSENTIALS</small></span></a><input type="checkbox" id="t"><label for="t"
+                class="burger">&#9776;</label>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="rentals.html" class=on>Rental Catalog</a></li>
+                <li><a href="packages.html">Packages</a></li>
+                <li><a href="how-it-works.html">How It Works</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a class="btn" href="cart.html">Cart (<span id="cc">0</span>)</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section>
+        <div class="wrap">
+            <h1>Rental Catalog</h1>
+            
+            <div class="chips"><a href="#tables">Tables</a><a href="#chairs">Chairs</a><a href="#acc">Accessories</a><a
+                    href="#pk">Event Packages</a></div>
+            <h2 id="chairs">Chairs</h2>
+            <div class="grid" data-cat="chairs"></div>
+            <h2 id="tables" style="margin-top:40px">Tables</h2>
+            <div class="grid" data-cat="tables"></div>
+            <h2 id="acc" style="margin-top:40px">Accessories</h2>
+            <div class="grid" data-cat="acc"></div>
+            <h2 id="pk" style="margin-top:40px">Event Packages</h2>
+            <div class="grid" data-cat="package"></div>
+            </div>
+    </section>
+    <footer>
+        <div class="wrap">
+            <p class="brand" style="justify-content:center">DREAM QUEST — EVENT ESSENTIALS</p>
+            <p><a href="admin.html">Admin</a></p>
+        </div>
+    </footer>
+<script src="shop.js"></script>
+</body>
+
+</html>

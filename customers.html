@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Customers — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+    <script>if (sessionStorage.getItem('dqAdmin') !== '1') location.replace('admin.html')</script>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="side">
+            <div class="brand"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT ESSENTIALS</small></span></div><a
+                href="dashboard.html">Dashboard</a><a href="bookings.html">Orders</a><a
+                href="rentals.html">Products</a><a href="rentals.html#chairs">Inventory</a><a href="customers.html"
+                class=on>Customers</a><a href="settings.html">Settings</a><a href="index.html">Back to Website</a><a
+                href="admin.html" onclick="sessionStorage.removeItem('dqAdmin')">Log Out</a>
+        </aside>
+        <main class="main">
+            <h1>Customers</h1>
+           
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Contact</th>
+                            <th>Rental History</th>
+                            <th>Orders</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cb"></tbody>
+                </table>
+            </div>
+        <div class="empty" id="none"><h3>NO CUSTOMERS YET</h3></div></main>
+    </div>
+<script src="shop.js"></script>
+<script>(function(){var l=DQ.get('dqBookings',[]),m={};l.forEach(function(b){var k=b.phone||b.name;(m[k]=m[k]||{n:b.name,c:b.phone+(b.email?' · '+b.email:''),o:[]}).o.push(b)});var r=Object.keys(m).map(function(k){var c=m[k];return '<tr><td>'+DQ.esc(c.n)+'</td><td>'+DQ.esc(c.c)+'</td><td>'+c.o.map(function(b){return DQ.esc(b.eventType||'Event')+', '+DQ.esc(b.eventDate)}).join('<br>')+'</td><td>'+c.o.map(function(b){return DQ.esc(b.id)+' ('+DQ.esc(b.status)+')'}).join('<br>')+'</td></tr>'});document.getElementById('cb').innerHTML=r.join('');document.getElementById('none').style.display=r.length?'none':'block'})()</script></body>
+
+</html>

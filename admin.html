@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin Login — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+    <script>if (sessionStorage.getItem('dqAdmin') === '1') location.replace('dashboard.html')</script>
+</head>
+
+<body>
+    <section
+        style="min-height:100vh;display:grid;place-items:center;background:radial-gradient(ellipse at top,#1a1405,var(--bg) 70%)">
+        <div style="width:100%;max-width:420px;padding:0 20px">
+            <div class="center"><a class="brand" href="index.html"
+                    style="justify-content:center;margin-bottom:22px"><span class="dq">DQ</span><span>DREAM
+                        QUEST<small>EVENT ESSENTIALS</small></span></a></div>
+            <div class="card" style="padding:28px;gap:14px">
+                <h2 class="center" style="margin:0">Admin Login</h2>
+                <p class="muted center" style="flex:none">Authorized staff only.</p>
+                <form id="f" style="grid-template-columns:1fr"><label>Username<input id="u" type="text"
+                            autocomplete="username" required></label><label>Password<input id="p" type="password"
+                            autocomplete="current-password" required></label>
+                    <p id="err" class="Rejected" style="display:none;font-size:.85rem">Incorrect username or password.
+                    </p><button class="btn fill" type="submit">Log In</button>
+                </form>
+                
+                <p class="center" style="margin:0"><a href="index.html">&larr; Back to Website</a></p>
+            </div>
+        </div>
+    </section>
+    <script>
+        document.getElementById('f').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (document.getElementById('u').value.trim() === 'admin' && document.getElementById('p').value === 'dreamquest123') { sessionStorage.setItem('dqAdmin', '1'); location.href = 'dashboard.html' }
+            else { document.getElementById('err').style.display = 'block' }
+        });
+    </script>
+</body>
+//username: admin
+//password: dreamquest123
+</html>

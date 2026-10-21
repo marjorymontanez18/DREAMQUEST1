@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Settings — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+    <script>if (sessionStorage.getItem('dqAdmin') !== '1') location.replace('admin.html')</script>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="side">
+            <div class="brand"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT ESSENTIALS</small></span></div><a
+                href="dashboard.html">Dashboard</a><a href="bookings.html">Orders</a><a
+                href="rentals.html">Products</a><a href="rentals.html#chairs">Inventory</a><a
+                href="customers.html">Customers</a><a href="settings.html" class=on>Settings</a><a
+                href="index.html">Back to Website</a><a href="admin.html"
+                onclick="sessionStorage.removeItem('dqAdmin')">Log Out</a>
+        </aside>
+        <main class="main">
+            <h1>Settings</h1>
+           
+            <h2>Business Information</h2>
+            <p class="muted">DREAM QUEST — EVENT ESSENTIALS<br>Phone: <span data-cfg="phone"></span> · Email: <span data-cfg="email"></span><br>Address: <span data-cfg="address"></span><br><small>Edit these, prices, stock and the delivery fee in <b>shop.js</b>.</small></p>
+            <h2>Rental Pricing &amp; Stock</h2><div class="tw"><table><thead><tr><th>Item</th><th>Rate</th><th>Min order</th><th>Stock</th></tr></thead><tbody id="pt"></tbody></table></div>
+            <h2>Delivery Policy </h2>
+            <p class="muted">Flat delivery fee applies; pick-up is free.</p>
+            <h2>Rental Terms </h2>
+            <p class="muted">Refundable security deposit; damaged or missing items charged at replacement cost.</p>
+        </main>
+    </div>
+<script src="shop.js"></script>
+<script>document.getElementById("pt").innerHTML=PRODUCTS.map(function(p){return "<tr><td>"+p.name+"</td><td>"+DQ.peso(p.price)+" / "+p.unit+" / day</td><td>"+p.min+"</td><td>"+p.stock+"</td></tr>"}).join("")</script></body>
+
+</html>

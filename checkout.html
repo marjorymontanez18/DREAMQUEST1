@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Checkout — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="checkout">
+    <header>
+        <nav class="nav"><a class="brand" href="index.html"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT
+                        ESSENTIALS</small></span></a><input type="checkbox" id="t"><label for="t"
+                class="burger">&#9776;</label>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="rentals.html">Rental Catalog</a></li>
+                <li><a href="packages.html">Packages</a></li>
+                <li><a href="how-it-works.html">How It Works</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a class="btn" href="cart.html">Cart (<span id="cc">0</span>)</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section><div class="wrap"><h1>Checkout</h1>
+<div class="co" id="co"><form id="bf"><label>Full name<input id="name" required></label><label>Mobile number<input id="phone" type="tel" required pattern="[0-9+ \-]{7,}"></label><label class="full">Email address<input id="email" type="email"></label><label>Event name<input id="eventName" placeholder="e.g. Maria &amp; Jon's Wedding"></label><label>Event type<select id="eventType"><option>Wedding</option><option>Birthday</option><option>Corporate</option><option>Family Gathering</option><option>Other</option></select></label><label>Rental start / event date<input id="start" type="date" required></label><label>Payment<select id="payment"><option>Cash on delivery / pick-up</option><option>GCash (details sent after confirmation)</option><option>Bank transfer (details sent after confirmation)</option></select></label><label class="full" id="alabel">Delivery address<input id="address" required></label><label class="full">Special instructions<textarea id="instructions" rows="3"></textarea></label><div class="full"><button class="btn fill" type="submit">Place Order</button></div></form><aside id="sumbox"></aside></div>
+<div id="done" style="display:none"></div></div></section>
+    <footer>
+        <div class="wrap">
+            <p class="brand" style="justify-content:center">DREAM QUEST — EVENT ESSENTIALS</p>
+            
+            <p><a href="admin.html">Admin</a></p>
+        </div>
+    </footer>
+<script src="shop.js"></script>
+</body>
+
+</html>

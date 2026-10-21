@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Orders — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+    <script>if (sessionStorage.getItem('dqAdmin') !== '1') location.replace('admin.html')</script>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="side">
+            <div class="brand"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT ESSENTIALS</small></span></div><a
+                href="dashboard.html">Dashboard</a><a href="bookings.html" class=on>Orders</a><a
+                href="rentals.html">Products</a><a href="rentals.html#chairs">Inventory</a><a
+                href="customers.html">Customers</a><a href="settings.html">Settings</a><a href="index.html">Back to
+                Website</a><a href="admin.html" onclick="sessionStorage.removeItem('dqAdmin')">Log Out</a>
+        </aside>
+        <main class="main">
+            <h1>Orders</h1>
+            <p class="muted">Orders placed by customers at checkout appear here, newest first (stored in this browser; see the note in the README for online order delivery).</p>
+            <div class="bar"><label>Filter by status<select id="flt">
+                        <option value="">All</option>
+                        <option>Pending</option>
+                        <option>Confirmed</option>
+                        <option>Completed</option>
+                        <option>Cancelled</option>
+                    </select></label><span id="cnt" class="muted"></span></div>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booking</th>
+                            <th>Customer</th>
+                            <th>Event Date</th>
+                            <th>Products</th>
+                            <th>Delivery Address</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="rows"></tbody>
+                </table>
+            </div>
+            <div id="none" class="empty" style="display:none">
+                <h3>NO ORDERS YET</h3>
+                <p class="muted">New customer orders will show up here.</p>
+            </div>
+            <dialog id="dlg">
+                <h2 id="dt" style="margin:0"></h2>
+                <dl class="dl" id="dd"></dl>
+                <div class="bar"><label>Update status<select id="ds">
+                            <option>Pending</option>
+                            <option>Confirmed</option>
+                            <option>Completed</option>
+                            <option>Cancelled</option>
+                        </select></label><button class="btn fill" id="sv" type="button">Save</button><button class="btn"
+                        id="rm" type="button">Delete</button><button class="btn" id="cl" type="button">Close</button>
+                </div>
+            </dialog>
+        </main>
+        <script>
+                (function () {
+                    var KEY = 'dqBookings', cur = null;
+                    var seed = [];
+                    function load() { try { var r = localStorage.getItem(KEY); if (r) return JSON.parse(r); localStorage.setItem(KEY, JSON.stringify(seed)) } catch (e) { } return seed.slice() }
+                    function save(l) { try { localStorage.setItem(KEY, JSON.stringify(l)) } catch (e) { alert('Could not save changes.') } }
+                    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] }) }
+                    var list = load();
+                    function render() {
+                        var f = document.getElementById('flt').value;
+                        var v = list.filter(function (b) { return !f || b.status === f }).sort(function (a, b) { return String(b.createdAt).localeCompare(String(a.createdAt)) });
+                        document.getElementById('rows').innerHTML = v.map(function (b) {
+                            return '<tr><td>' + esc(b.id) + '</td><td>' + esc(b.name) + '<br><small class="muted">' + esc(b.phone) + '</small></td><td>' + esc(b.eventDate) + '</td><td>' + esc((b.products || []).join(', ')) + '</td><td>' + esc(b.address) + '</td><td><span class="st ' + esc(b.status) + '">' + esc(b.status) + '</span></td><td><button class="btn" data-id="' + esc(b.id) + '" type="button">View</button></td></tr>'
+                        }).join('');
+                        document.getElementById('none').style.display = v.length ? 'none' : 'block';
+                        document.getElementById('cnt').textContent = v.length + ' of ' + list.length + ' orders';
+                    }
+                    function row(k, v) { return '<dt>' + k + '</dt><dd>' + esc(v || '—') + '</dd>' }
+                    document.getElementById('rows').addEventListener('click', function (e) {
+                        var id = e.target.getAttribute('data-id'); if (!id) return;
+                        cur = list.filter(function (b) { return b.id === id })[0]; if (!cur) return;
+                        document.getElementById('dt').textContent = 'Order ' + cur.id;
+                        document.getElementById('dd').innerHTML = row('Customer', cur.name) + row('Contact', cur.phone) + row('Email', cur.email) + row('Event', (cur.eventName || '') + (cur.eventType ? ' (' + cur.eventType + ')' : '')) + row('Event date', cur.eventDate) + row('Rental period', (cur.start || '—') + ' to ' + (cur.end || '—')) + row('Delivery address', cur.address) + row('Service', cur.service) + row('Payment', cur.payment) + row('Total', cur.total != null ? '₱' + Number(cur.total).toLocaleString() + ' (deposit ₱' + Number(cur.deposit || 0).toLocaleString() + ')' : '—') + row('Products', (cur.products || []).join(', ')) + row('Quantities', cur.quantities) + row('Service', cur.service) + row('Instructions', cur.instructions) + row('Submitted', cur.createdAt ? new Date(cur.createdAt).toLocaleString() : '');
+                        document.getElementById('ds').value = cur.status;
+                        document.getElementById('dlg').showModal();
+                    });
+                    document.getElementById('sv').onclick = function () { cur.status = document.getElementById('ds').value; save(list); document.getElementById('dlg').close(); render() };
+                    document.getElementById('rm').onclick = function () { if (confirm('Delete order ' + cur.id + '?')) { list = list.filter(function (b) { return b !== cur }); save(list); document.getElementById('dlg').close(); render() } };
+                    document.getElementById('cl').onclick = function () { document.getElementById('dlg').close() };
+                    document.getElementById('flt').onchange = render;
+                    render();
+                })();
+        </script>
+    </div>
+<script src="shop.js"></script>
+</body>
+
+</html>
