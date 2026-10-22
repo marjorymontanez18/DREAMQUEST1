@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Products — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <script>DQAuth.protect('admin')</script>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="side" id="side"></aside>
+        <script>DQAuth.mountSide('products')</script>
+        <main class="main">
+            <h1>Products</h1>
+            <p class="muted">Add, edit or remove rental items. Changes show on the website right away (stored in this browser).</p>
+
+            <div class="toolbar">
+                <label class="grow">Search<input id="q" placeholder="Search by name…"></label>
+                <label>Category<select id="fc"><option value="">All</option><option value="chairs">Chairs</option><option value="tables">Tables</option><option value="acc">Accessories</option><option value="package">Event Packages</option></select></label>
+                <button class="btn fill" id="add" type="button">+ Add Product</button>
+                <button class="btn" id="reset" type="button">Reset to Defaults</button>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead><tr><th>Photo</th><th>Name</th><th>Category</th><th>Price / day</th><th>Min</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="rows"></tbody>
+                </table>
+            </div>
+            <div class="empty" id="none" style="display:none"><h3>NO PRODUCTS FOUND</h3></div>
+
+            <dialog id="dlg">
+                <h2 id="dt">Edit Product</h2>
+                <form id="f">
+                    <label class="full">Product name<input id="name" required maxlength="80"></label>
+                    <label>Category<select id="cat"><option value="chairs">Chairs</option><option value="tables">Tables</option><option value="acc">Accessories</option><option value="package">Event Packages</option></select></label>
+                    <label>Unit (e.g. chair, table, set)<input id="unit" required maxlength="20"></label>
+                    <label>Price per day (₱)<input id="price" type="number" min="0" step="any" required></label>
+                    <label>Minimum order<input id="min" type="number" min="1" step="1" required></label>
+                    <label>Stock (quantity owned)<input id="stock" type="number" min="0" step="1" required></label>
+                    <label>Availability<select id="avail"><option value="1">Available for rent</option><option value="0">Unavailable (hidden from ordering)</option></select></label>
+                    <label class="full">Description<textarea id="desc" rows="3"></textarea></label>
+                    <div class="full">
+                        <span class="muted" style="font-size:.85rem">Photo</span>
+                        <div class="imgrow" style="margin-top:6px">
+                            <img class="thumb" id="prev" alt="">
+                            <input type="file" id="file" accept="image/*">
+                            <button class="btn sm" id="noimg" type="button">Remove photo</button>
+                        </div>
+                    </div>
+                    <p id="msg" class="alert full"></p>
+                    <div class="full bar" style="margin:0"><button class="btn fill" type="submit">Save</button><button class="btn" id="cl" type="button">Cancel</button></div>
+                </form>
+            </dialog>
+        </main>
+    </div>
+    <script src="shop.js"></script>
+    <script>
+        (function () {
+            var $ = function (i) { return document.getElementById(i) }, E = DQ.esc;
+            var list = PRODUCTS.map(function (p) { var o = {}; for (var k in p) o[k] = p[k]; return o });
+            var editing = null, img = '';
+            var CATS = { chairs: 'Chairs', tables: 'Tables', acc: 'Accessories', 'package': 'Event Packages' };
+
+            function persist() { if (!DQ.saveProducts(list)) { alert('Could not save. Browser storage may be full — try a smaller photo.'); return false } return true }
+            function render() {
+                var t = $('q').value.trim().toLowerCase(), c = $('fc').value;
+                var v = list.filter(function (p) { return (!c || p.cat === c) && (!t || p.name.toLowerCase().indexOf(t) > -1) });
+                $('rows').innerHTML = v.map(function (p) {
+                    var ok = DQ.isAvail(p), st = ok ? 'Available' : (p.avail === false ? 'Unavailable' : 'Out of stock');
+                    return '<tr><td>' + (p.img ? '<img class="thumb" src="' + E(p.img) + '" alt="">' : '<span class="thumb none">NO PHOTO</span>') + '</td><td>' + E(p.name) + '<br><small class="muted">' + E(p.id) + '</small></td><td>' + E(CATS[p.cat] || p.cat) + '</td><td>' + DQ.peso(p.price) + ' / ' + E(p.unit) + '</td><td>' + p.min + '</td><td>' + p.stock + '</td><td><span class="st ' + (ok ? 'Available' : 'Unavailable') + '">' + st + '</span></td><td style="white-space:nowrap"><button class="btn sm" data-e="' + E(p.id) + '" type="button">Edit</button> <button class="btn sm danger" data-d="' + E(p.id) + '" type="button">Delete</button></td></tr>';
+                }).join('');
+                $('none').style.display = v.length ? 'none' : 'block';
+            }
+            function setImg(src) { img = src || ''; $('prev').src = img || 'data:image/gif;base64,R0lGODlhAQABAAAAACw='; $('prev').style.visibility = img ? 'visible' : 'hidden' }
+            function open(p) {
+                editing = p; $('msg').className = 'alert full'; $('file').value = '';
+                $('dt').textContent = p ? 'Edit Product' : 'Add Product';
+                var d = p || { name: '', cat: 'chairs', unit: 'chair', price: '', min: 1, stock: 0, avail: true, desc: '', img: '' };
+                $('name').value = d.name; $('cat').value = d.cat; $('unit').value = d.unit; $('price').value = d.price; $('min').value = d.min; $('stock').value = d.stock;
+                $('avail').value = d.avail === false ? '0' : '1'; $('desc').value = d.desc || ''; setImg(d.img);
+                $('dlg').showModal();
+            }
+            function slug(n) { var b = n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'item', id = b, i = 2; while (list.some(function (p) { return p.id === id })) id = b + '-' + (i++); return id }
+
+            /* resize uploaded photos so they fit in browser storage */
+            $('file').onchange = function () {
+                var f = this.files[0]; if (!f) return;
+                var r = new FileReader();
+                r.onload = function () {
+                    var im = new Image();
+                    im.onload = function () {
+                        var s = Math.min(1, 800 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+                        c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+                        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); setImg(c.toDataURL('image/jpeg', .8));
+                    };
+                    im.onerror = function () { alert('That file is not a valid image.') };
+                    im.src = r.result;
+                };
+                r.readAsDataURL(f);
+            };
+            $('noimg').onclick = function () { setImg(''); $('file').value = '' };
+            $('add').onclick = function () { open(null) };
+            $('cl').onclick = function () { $('dlg').close() };
+            $('q').oninput = $('fc').onchange = render;
+
+            $('f').addEventListener('submit', function (e) {
+                e.preventDefault();
+                var price = parseFloat($('price').value), min = parseInt($('min').value, 10), stock = parseInt($('stock').value, 10), m = $('msg');
+                if (!(price >= 0) || !(min >= 1) || !(stock >= 0)) { m.className = 'alert full err'; m.textContent = 'Please enter a valid price, minimum order (1 or more) and stock.'; return }
+                var data = { name: $('name').value.trim(), cat: $('cat').value, unit: $('unit').value.trim(), price: price, min: min, stock: stock, avail: $('avail').value === '1', desc: $('desc').value.trim(), img: img };
+                if (!data.img) delete data.img;
+                if (editing) { for (var k in data) editing[k] = data[k]; if (!data.img) delete editing.img }
+                else { data.id = slug(data.name); list.push(data) }
+                if (!persist()) return;
+                $('dlg').close(); render(); DQ.toast(editing ? 'Product saved.' : 'Product added.');
+            });
+            $('rows').addEventListener('click', function (e) {
+                var b = e.target.closest('button'); if (!b) return;
+                if (b.dataset.e) open(list.filter(function (p) { return p.id === b.dataset.e })[0]);
+                if (b.dataset.d) {
+                    var p = list.filter(function (x) { return x.id === b.dataset.d })[0];
+                    if (p && confirm('Delete "' + p.name + '"? It will disappear from the website.')) { list = list.filter(function (x) { return x !== p }); if (persist()) render() }
+                }
+            });
+            $('reset').onclick = function () {
+                if (!confirm('Restore the original product list? All your product edits will be lost.')) return;
+                DQ.resetProducts(); location.reload();
+            };
+            render();
+        })();
+    </script>
+</body>
+
+</html>

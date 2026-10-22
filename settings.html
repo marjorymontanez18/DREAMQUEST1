@@ -6,32 +6,43 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Settings — DREAM QUEST</title>
     <link rel="stylesheet" href="style.css">
-    <script>if (sessionStorage.getItem('dqAdmin') !== '1') location.replace('admin.html')</script>
+    <script src="auth.js"></script>
+    <script>DQAuth.protect('admin')</script>
 </head>
 
 <body>
     <div class="app">
-        <aside class="side">
-            <div class="brand"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT ESSENTIALS</small></span></div><a
-                href="dashboard.html">Dashboard</a><a href="bookings.html">Orders</a><a
-                href="rentals.html">Products</a><a href="rentals.html#chairs">Inventory</a><a
-                href="customers.html">Customers</a><a href="settings.html" class=on>Settings</a><a
-                href="index.html">Back to Website</a><a href="admin.html"
-                onclick="sessionStorage.removeItem('dqAdmin')">Log Out</a>
-        </aside>
+        <aside class="side" id="side"></aside>
+        <script>DQAuth.mountSide('settings')</script>
         <main class="main">
             <h1>Settings</h1>
            
             <h2>Business Information</h2>
-            <p class="muted">DREAM QUEST — EVENT ESSENTIALS<br>Phone: <span data-cfg="phone"></span> · Email: <span data-cfg="email"></span><br>Address: <span data-cfg="address"></span><br><small>Edit these, prices, stock and the delivery fee in <b>shop.js</b>.</small></p>
-            <h2>Rental Pricing &amp; Stock</h2><div class="tw"><table><thead><tr><th>Item</th><th>Rate</th><th>Min order</th><th>Stock</th></tr></thead><tbody id="pt"></tbody></table></div>
+            <form id="fc" style="max-width:640px">
+                <label>Phone<input id="phone" required></label>
+                <label>Email<input id="email" type="email" required></label>
+                <label class="full">Address<input id="address" required></label>
+                <label>Delivery fee (₱)<input id="deliveryFee" type="number" min="0" step="any" required></label>
+                <label>Security deposit (% of rental)<input id="deposit" type="number" min="0" max="100" step="any" required></label>
+                <p id="cmsg" class="alert full"></p>
+                <div class="full bar" style="margin:0"><button class="btn fill" type="submit">Save Settings</button><button class="btn" id="rs" type="button">Reset to Defaults</button></div>
+            </form>
+            <h2>Rental Pricing &amp; Stock</h2><p class="muted">Edit prices, stock and availability in <a href="products.html">Products</a> or <a href="inventory.html">Inventory</a>.</p><div class="tw"><table><thead><tr><th>Item</th><th>Rate</th><th>Min order</th><th>Stock</th></tr></thead><tbody id="pt"></tbody></table></div>
             <h2>Delivery Policy </h2>
-            <p class="muted">Flat delivery fee applies; pick-up is free.</p>
+            <p class="muted">Flat delivery fee of <b id="dfee"></b> applies; pick-up is free.</p>
             <h2>Rental Terms </h2>
-            <p class="muted">Refundable security deposit; damaged or missing items charged at replacement cost.</p>
+            <p class="muted">Refundable security deposit (<b id="dep"></b> of rental); damaged or missing items charged at replacement cost.</p>
         </main>
     </div>
 <script src="shop.js"></script>
-<script>document.getElementById("pt").innerHTML=PRODUCTS.map(function(p){return "<tr><td>"+p.name+"</td><td>"+DQ.peso(p.price)+" / "+p.unit+" / day</td><td>"+p.min+"</td><td>"+p.stock+"</td></tr>"}).join("")</script></body>
+<script>document.getElementById("pt").innerHTML=PRODUCTS.map(function(p){return "<tr><td>"+p.name+"</td><td>"+DQ.peso(p.price)+" / "+p.unit+" / day</td><td>"+p.min+"</td><td>"+p.stock+"</td></tr>"}).join("")</script><script>(function(){var $=function(i){return document.getElementById(i)};
+function fill(){$('phone').value=CONFIG.phone;$('email').value=CONFIG.email;$('address').value=CONFIG.address;$('deliveryFee').value=CONFIG.deliveryFee;$('deposit').value=Math.round(CONFIG.depositRate*10000)/100;$('dfee').textContent=DQ.peso(CONFIG.deliveryFee);$('dep').textContent=Math.round(CONFIG.depositRate*10000)/100+'%'}
+fill();
+$('fc').addEventListener('submit',function(e){e.preventDefault();var m=$('cmsg');
+var c={phone:$('phone').value.trim(),email:$('email').value.trim(),address:$('address').value.trim(),deliveryFee:parseFloat($('deliveryFee').value),depositRate:parseFloat($('deposit').value)/100};
+if(!(c.deliveryFee>=0)||!(c.depositRate>=0&&c.depositRate<=1)){m.className='alert full err';m.textContent='Please enter a valid delivery fee and deposit percentage.';return}
+if(DQ.saveConfig(c)){for(var k in c)CONFIG[k]=c[k];fill();m.className='alert full ok';m.textContent='Settings saved. They now apply across the website.'}else{m.className='alert full err';m.textContent='Could not save settings.'}});
+$('rs').onclick=function(){if(confirm('Restore the original business settings?')){localStorage.removeItem('dqConfig');location.reload()}}})()</script>
+</body>
 
 </html>

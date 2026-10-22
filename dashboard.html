@@ -6,30 +6,62 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Dashboard — DREAM QUEST</title>
     <link rel="stylesheet" href="style.css">
-    <script>if (sessionStorage.getItem('dqAdmin') !== '1') location.replace('admin.html')</script>
+    <script src="auth.js"></script>
+    <script>DQAuth.protect('admin')</script>
 </head>
 
 <body>
     <div class="app">
-        <aside class="side">
-            <div class="brand"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT ESSENTIALS</small></span></div><a
-                href="dashboard.html" class=on>Dashboard</a><a href="bookings.html">Orders</a><a
-                href="rentals.html">Products</a><a href="rentals.html#chairs">Inventory</a><a
-                href="customers.html">Customers</a><a href="settings.html">Settings</a><a href="index.html">Back to
-                Website</a><a href="admin.html" onclick="sessionStorage.removeItem('dqAdmin')">Log Out</a>
-        </aside>
+        <aside class="side" id="side"></aside>
+        <script>DQAuth.mountSide('dashboard')</script>
         <main class="main">
             <h1>Dashboard</h1>
-            
-            <div class="stats"><div class="stat"><b id="s1">0</b><span>Total Orders</span></div><div class="stat"><b id="s2">0</b><span>Pending Orders</span></div><div class="stat"><b id="s3">0</b><span>Active Rentals</span></div><div class="stat"><b id="s4">₱0</b><span>Confirmed Revenue</span></div></div>
-<h2>Recent Orders</h2><div class="tw"><table><thead><tr><th>Order No.</th><th>Customer</th><th>Event Date</th><th>Total</th><th>Status</th><th>Action</th></tr></thead><tbody id="rec"></tbody></table></div>
-<div class="empty" id="none"><h3>NO ORDERS YET</h3><p class="muted">Customer orders will appear here.</p></div></main>
+            <p class="muted">Welcome back, <span id="nm"></span>.</p>
+
+            <div class="stats">
+                <div class="stat"><b id="s1">0</b><span>Total Orders</span></div>
+                <div class="stat"><b id="s2">0</b><span>Pending Orders</span></div>
+                <div class="stat"><b id="s3">0</b><span>Active Rentals</span></div>
+                <div class="stat"><b id="s4">₱0</b><span>Confirmed Revenue</span></div>
+            </div>
+            <div class="stats" style="margin-top:0">
+                <div class="stat"><b id="s5">0</b><span>Registered Customers</span></div>
+                <div class="stat"><b id="s6">0</b><span>Products Listed</span></div>
+                <div class="stat"><b id="s7">0</b><span>Low / Out of Stock</span></div>
+            </div>
+            <div class="btns" style="justify-content:flex-start;margin-top:0">
+                <a class="btn fill" href="products.html">Manage Products</a><a class="btn" href="inventory.html">Update Inventory</a><a class="btn" href="bookings.html">View All Orders</a>
+            </div>
+
+            <h2>Recent Orders</h2>
+            <div class="tw">
+                <table>
+                    <thead><tr><th>Order No.</th><th>Customer</th><th>Event Date</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody id="rec"></tbody>
+                </table>
+            </div>
+            <div class="empty" id="none"><h3>NO ORDERS YET</h3><p class="muted">Customer orders will appear here.</p></div>
+        </main>
     </div>
-    <script>(function(){var l=DQ.get('dqBookings',[]),ok=l.filter(function(b){return b.status==='Confirmed'||b.status==='Completed'});
-document.getElementById('s1').textContent=l.length;document.getElementById('s2').textContent=l.filter(function(b){return b.status==='Pending'}).length;document.getElementById('s3').textContent=l.filter(function(b){return b.status==='Confirmed'}).length;document.getElementById('s4').textContent=DQ.peso(ok.reduce(function(s,b){return s+(b.total||0)},0));
-document.getElementById('none').style.display=l.length?'none':'block';
-document.getElementById('rec').innerHTML=l.slice().sort(function(a,b){return String(b.createdAt).localeCompare(String(a.createdAt))}).slice(0,8).map(function(b){return '<tr><td>'+DQ.esc(b.id)+'</td><td>'+DQ.esc(b.name)+'</td><td>'+DQ.esc(b.eventDate)+'</td><td>'+DQ.peso(b.total||0)+'</td><td><span class="st '+DQ.esc(b.status)+'">'+DQ.esc(b.status)+'</span></td><td><a href="bookings.html">Manage</a></td></tr>'}).join('')})()</script>
-<script src="shop.js"></script>
+    <script src="shop.js"></script>
+    <script>
+        (function () {
+            var $ = function (i) { return document.getElementById(i) };
+            var l = DQ.get('dqBookings', []), ok = l.filter(function (b) { return b.status === 'Confirmed' || b.status === 'Completed' });
+            $('nm').textContent = DQAuth.user().name.split(' ')[0];
+            $('s1').textContent = l.length;
+            $('s2').textContent = l.filter(function (b) { return b.status === 'Pending' }).length;
+            $('s3').textContent = l.filter(function (b) { return b.status === 'Confirmed' }).length;
+            $('s4').textContent = DQ.peso(ok.reduce(function (s, b) { return s + (b.total || 0) }, 0));
+            $('s5').textContent = DQAuth.users().filter(function (u) { return u.role === 'customer' }).length;
+            $('s6').textContent = PRODUCTS.length;
+            $('s7').textContent = PRODUCTS.filter(function (p) { return !DQ.isAvail(p) || p.stock <= 10 }).length;
+            $('none').style.display = l.length ? 'none' : 'block';
+            $('rec').innerHTML = l.slice().sort(function (a, b) { return String(b.createdAt).localeCompare(String(a.createdAt)) }).slice(0, 8).map(function (b) {
+                return '<tr><td>' + DQ.esc(b.id) + '</td><td>' + DQ.esc(b.name) + '</td><td>' + DQ.esc(b.eventDate) + '</td><td>' + DQ.peso(b.total || 0) + '</td><td><span class="st ' + DQ.esc(b.status) + '">' + DQ.esc(b.status) + '</span></td><td><a href="bookings.html">Manage</a></td></tr>';
+            }).join('');
+        })();
+    </script>
 </body>
 
 </html>

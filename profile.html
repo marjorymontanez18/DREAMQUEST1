@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>My Profile — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <script>DQAuth.protect('any')</script>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="side" id="side"></aside>
+        <script>DQAuth.mountSide('profile')</script>
+        <main class="main">
+            <h1>My Profile</h1>
+            <p class="muted">Your account information. Changes are saved to your account on this device.</p>
+
+            <div class="profile" style="margin-top:22px">
+                <div class="panel">
+                    <div class="avatar" id="av"></div>
+                    <h2 id="pname" style="margin-bottom:6px"></h2>
+                    <span class="role" id="prole"></span>
+                    <dl class="dl" style="margin-top:18px">
+                        <dt>Email</dt><dd id="pemail"></dd>
+                        <dt id="unameT" style="display:none">Username</dt><dd id="puser" style="display:none"></dd>
+                        <dt>Mobile</dt><dd id="pphone"></dd>
+                        <dt id="addrT">Address</dt><dd id="paddr"></dd>
+                        <dt>Member since</dt><dd id="psince"></dd>
+                        <dt id="ordT">Orders placed</dt><dd id="pord"></dd>
+                    </dl>
+                </div>
+
+                <div class="panel">
+                    <h2>Edit Details</h2>
+                    <form id="fp" style="grid-template-columns:1fr;margin-top:14px">
+                        <label>Full name<input id="name" required></label>
+                        <label>Email address<input id="email" type="email" required></label>
+                        <label>Mobile number<input id="phone" type="tel" pattern="[0-9+ \-]{7,}"></label>
+                        <label id="addrL">Default delivery address<input id="address"></label>
+                        <p id="pmsg" class="alert"></p>
+                        <div><button class="btn fill" type="submit">Save Changes</button></div>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <h2>Change Password</h2>
+                    <form id="fw" style="grid-template-columns:1fr;margin-top:14px">
+                        <label>Current password<input id="old" type="password" autocomplete="current-password" required></label>
+                        <label>New password<input id="new1" type="password" autocomplete="new-password" minlength="6" required></label>
+                        <label>Confirm new password<input id="new2" type="password" autocomplete="new-password" minlength="6" required></label>
+                        <p id="wmsg" class="alert"></p>
+                        <div><button class="btn fill" type="submit">Update Password</button></div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        (function () {
+            var $ = function (i) { return document.getElementById(i) }, me = DQAuth.user();
+            function msg(el, type, t) { el.className = 'alert ' + type; el.textContent = t }
+            function show() {
+                me = DQAuth.user();
+                $('av').textContent = me.name.trim().charAt(0).toUpperCase();
+                $('pname').textContent = me.name;
+                $('prole').textContent = me.role === 'admin' ? 'Admin' : 'Customer'; $('prole').className = 'role ' + me.role;
+                $('pemail').textContent = me.email || '—'; $('pphone').textContent = me.phone || '—'; $('paddr').textContent = me.address || '—';
+                $('psince').textContent = me.createdAt ? new Date(me.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+                if (me.username) { $('unameT').style.display = $('puser').style.display = ''; $('puser').textContent = me.username }
+                $('name').value = me.name; $('email').value = me.email || ''; $('phone').value = me.phone || ''; $('address').value = me.address || '';
+                if (me.role === 'admin') { $('addrL').style.display = 'none'; $('addrT').style.display = $('paddr').style.display = 'none'; $('ordT').style.display = $('pord').style.display = 'none' }
+                else {
+                    var low = function (s) { return String(s || '').toLowerCase() };
+                    var n = []; try { n = JSON.parse(localStorage.getItem('dqBookings') || '[]') } catch (e) { }
+                    $('pord').textContent = n.filter(function (b) { return b.userId === me.id || (low(b.email) && low(b.email) === low(me.email)) }).length;
+                }
+            }
+            $('fp').addEventListener('submit', function (e) {
+                e.preventDefault();
+                try { DQAuth.update(me.id, { name: $('name').value, email: $('email').value, phone: $('phone').value, address: $('address').value }); show(); DQAuth.mountSide('profile'); msg($('pmsg'), 'ok', 'Profile updated.') }
+                catch (err) { msg($('pmsg'), 'err', err.message) }
+            });
+            $('fw').addEventListener('submit', function (e) {
+                e.preventDefault();
+                DQAuth.changePassword(me.id, $('old').value, $('new1').value, $('new2').value)
+                    .then(function () { $('fw').reset(); msg($('wmsg'), 'ok', 'Password updated.') })
+                    .catch(function (err) { msg($('wmsg'), 'err', err.message) });
+            });
+            show();
+        })();
+    </script>
+</body>
+
+</html>

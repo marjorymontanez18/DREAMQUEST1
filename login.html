@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Log In / Sign Up — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <script>
+        /* already signed in? go straight to the right dashboard (unless they asked to switch accounts) */
+        if (DQAuth.user() && !/switch=1/.test(location.search)) location.replace(DQAuth.safeNext(new URLSearchParams(location.search).get('next')) || DQAuth.home());
+    </script>
+</head>
+
+<body>
+    <section class="authwrap">
+        <div class="authbox" id="box">
+            <div class="center"><a class="brand" href="index.html" style="justify-content:center;margin-bottom:26px"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT ESSENTIALS</small></span></a></div>
+
+            <!-- STEP 1: choose who you are and what you want to do -->
+            <div id="step1">
+                <h2 class="center" style="margin-bottom:6px">Welcome</h2>
+                <p class="muted center" style="margin-bottom:22px">Choose how you would like to continue.</p>
+                <div class="roles">
+                    <div class="rolecard">
+                        <span class="ico">&#9830;</span>
+                        <h3>I'm a Customer</h3>
+                        <p>Rent tables, chairs and event essentials, track your orders and manage your profile.</p>
+                        <div class="btns"><button class="btn fill" data-role="customer" data-mode="login">Log In</button><button class="btn" data-role="customer" data-mode="signup">Sign Up</button></div>
+                    </div>
+                    <div class="rolecard">
+                        <span class="ico">&#9812;</span>
+                        <h3>I'm the Admin / Owner</h3>
+                        <p>Manage orders, products, prices, stock and customers. Authorized staff only.</p>
+                        <div class="btns"><button class="btn fill" data-role="admin" data-mode="login">Log In</button><button class="btn" data-role="admin" data-mode="signup">Sign Up</button></div>
+                    </div>
+                </div>
+                <p class="center" style="margin-top:22px"><a href="index.html">&larr; Back to Website</a></p>
+            </div>
+
+            <!-- STEP 2: the form -->
+            <div id="step2" style="display:none">
+                <div class="card" style="padding:28px;gap:14px">
+                    <h2 class="center" style="margin:0" id="title"></h2>
+                    <p class="muted center" style="flex:none;margin:0" id="sub"></p>
+                    <div class="tabs"><button type="button" id="tLogin">Log In</button><button type="button" id="tSignup">Sign Up</button></div>
+
+                    <form id="fLogin" style="grid-template-columns:1fr" autocomplete="on">
+                        <label><span id="idLabel">Email</span><input id="lid" type="text" autocomplete="username" required></label>
+                        <label>Password<input id="lpw" type="password" autocomplete="current-password" required></label>
+                        <label class="inline"><input type="checkbox" id="lrem" checked> Keep me signed in on this device</label>
+                        <p id="lmsg" class="alert"></p>
+                        <button class="btn fill" type="submit">Log In</button>
+                    </form>
+
+                    <form id="fSignup" style="grid-template-columns:1fr" autocomplete="on">
+                        <label>Full name<input id="sname" autocomplete="name" required></label>
+                        <label>Email address<input id="semail" type="email" autocomplete="email" required></label>
+                        <label>Mobile number<input id="sphone" type="tel" autocomplete="tel" pattern="[0-9+ \-]{7,}" placeholder="09xx xxx xxxx"></label>
+                        <label id="saddrL">Address (optional — used to pre-fill delivery)<input id="saddr" autocomplete="street-address"></label>
+                        <label>Password (at least 6 characters)<input id="spw" type="password" autocomplete="new-password" minlength="6" required></label>
+                        <label>Confirm password<input id="spw2" type="password" autocomplete="new-password" minlength="6" required></label>
+                        <label id="codeL">Owner access code<input id="scode" type="password" autocomplete="off"></label>
+                        <label class="inline"><input type="checkbox" id="srem" checked> Keep me signed in on this device</label>
+                        <p id="smsg" class="alert"></p>
+                        <button class="btn fill" type="submit">Create Account</button>
+                    </form>
+
+                    <p class="center" style="margin:0"><a href="#" id="back">&larr; Choose a different account type</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        (function () {
+            var $ = function (id) { return document.getElementById(id) };
+            var q = new URLSearchParams(location.search), role = '', mode = 'login';
+            var next = DQAuth.safeNext(q.get('next'));
+
+            function show(r, m) {
+                role = r === 'admin' ? 'admin' : 'customer'; mode = m === 'signup' ? 'signup' : 'login';
+                $('step1').style.display = 'none'; $('step2').style.display = 'block'; $('box').classList.add('narrow');
+                $('title').textContent = (role === 'admin' ? 'Admin ' : 'Customer ') + (mode === 'signup' ? 'Sign Up' : 'Log In');
+                $('sub').textContent = role === 'admin' ? 'Authorized staff only.' : (mode === 'signup' ? 'Create a free account to rent and track your orders.' : 'Welcome back! Log in to your account.');
+                $('tLogin').className = mode === 'login' ? 'on' : ''; $('tSignup').className = mode === 'signup' ? 'on' : '';
+                $('fLogin').style.display = mode === 'login' ? 'grid' : 'none'; $('fSignup').style.display = mode === 'signup' ? 'grid' : 'none';
+                $('idLabel').textContent = role === 'admin' ? 'Email or username' : 'Email address';
+                $('codeL').style.display = role === 'admin' ? 'flex' : 'none';
+                $('scode').required = role === 'admin';
+                $('saddrL').style.display = role === 'admin' ? 'none' : 'flex';
+                $('sphone').required = role === 'customer';
+                $('lmsg').className = 'alert'; $('smsg').className = 'alert';
+                var last = DQAuth.last();                       // pre-fill the last email used on this device
+                if (mode === 'login' && last && last.role === role && !$('lid').value) $('lid').value = last.id;
+                setTimeout(function () { ($('lid').value && mode === 'login' ? $('lpw') : mode === 'login' ? $('lid') : $('sname')).focus() }, 30);
+            }
+            function msg(el, type, text) { el.className = 'alert ' + type; el.textContent = text }
+            function go(u) {
+                var adminPg = /^(dashboard|bookings|products|inventory|customers|settings)\.html/.test(next);
+                location.href = next && (u.role === 'admin' ? adminPg : !adminPg) ? next : DQAuth.home(u);
+            }
+
+            document.querySelectorAll('[data-role]').forEach(function (b) { b.onclick = function () { show(b.dataset.role, b.dataset.mode) } });
+            $('tLogin').onclick = function () { show(role, 'login') };
+            $('tSignup').onclick = function () { show(role, 'signup') };
+            $('back').onclick = function (e) { e.preventDefault(); $('step2').style.display = 'none'; $('step1').style.display = 'block'; $('box').classList.remove('narrow') };
+
+            $('fLogin').addEventListener('submit', function (e) {
+                e.preventDefault(); msg($('lmsg'), 'ok', 'Signing you in…');
+                DQAuth.login({ role: role, id: $('lid').value, password: $('lpw').value, remember: $('lrem').checked })
+                    .then(function (u) { msg($('lmsg'), 'ok', 'Welcome back, ' + u.name.split(' ')[0] + '!'); go(u) })
+                    .catch(function (err) { msg($('lmsg'), 'err', err.message) });
+            });
+            $('fSignup').addEventListener('submit', function (e) {
+                e.preventDefault(); msg($('smsg'), 'ok', 'Creating your account…');
+                DQAuth.signup({ role: role, name: $('sname').value, email: $('semail').value, phone: $('sphone').value, address: $('saddr').value, password: $('spw').value, confirm: $('spw2').value, code: $('scode').value, remember: $('srem').checked })
+                    .then(function (u) { msg($('smsg'), 'ok', 'Account created! Taking you to your dashboard…'); setTimeout(function () { go(u) }, 700) })
+                    .catch(function (err) { msg($('smsg'), 'err', err.message) });
+            });
+
+            if (q.get('role')) show(q.get('role'), q.get('mode'));
+        })();
+    </script>
+</body>
+
+</html>

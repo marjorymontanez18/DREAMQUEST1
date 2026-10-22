@@ -675,3 +675,47 @@ dialog::backdrop {
 .co{display:grid;grid-template-columns:2fr 1fr;gap:32px;align-items:start}.co aside{border:1px solid var(--line);background:var(--bg2);padding:20px;position:sticky;top:90px}
 @media(max-width:860px){.co{grid-template-columns:1fr}.co aside{position:static;order:-1}}
 .btn[data-add]{font-family:var(--sans)}
+
+/* ---------- accounts, roles & admin tools ---------- */
+input[type=checkbox]{width:auto;padding:0;accent-color:var(--gold);cursor:pointer}
+label.inline{flex-direction:row;align-items:center;gap:10px;cursor:pointer}
+.side{overflow-y:auto}
+.who{border:1px solid var(--line);padding:10px 12px;margin-bottom:14px;display:flex;flex-direction:column;gap:6px;background:var(--bg2)}
+.who b{color:var(--champ);font-weight:600;font-size:.9rem;word-break:break-word}
+.role{align-self:flex-start;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;padding:1px 8px;border:1px solid}
+.role.admin{color:#e6b94a}.role.customer{color:#6fb5eb}
+.Available{color:#6fcf97}.Unavailable{color:#eb6b6b}.Low{color:#e6b94a}
+
+.authwrap{min-height:100vh;display:grid;place-items:center;background:radial-gradient(ellipse at top,#1a1405,var(--bg) 70%);padding:30px 0}
+.authbox{width:100%;max-width:720px;padding:0 20px}
+.authbox.narrow{max-width:460px}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.rolecard{background:var(--bg2);border:1px solid var(--line);padding:26px 22px;display:flex;flex-direction:column;gap:10px;text-align:center;transition:.25s}
+.rolecard:hover{border-color:var(--gold);transform:translateY(-3px)}
+.rolecard .ico{font:2.2rem var(--serif);color:var(--gold)}
+.rolecard p{color:var(--muted);font-size:.9rem;flex:1}
+.rolecard .btns{margin-top:6px}
+.rolecard .btn{flex:1;text-align:center;padding:11px 10px}
+.tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:6px}
+.tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:12px;font:600 .85rem var(--sans);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.tabs button.on{color:var(--gold);border-color:var(--gold)}
+.alert{padding:10px 14px;font-size:.88rem;border:1px solid;display:none}
+.alert.err{display:block;color:#eb6b6b;border-color:#eb6b6b;background:rgba(235,107,107,.07)}
+.alert.ok{display:block;color:#6fcf97;border-color:#6fcf97;background:rgba(111,207,151,.07)}
+.btn.sm{padding:6px 12px;font-size:.72rem}
+.btn.danger{border-color:#eb6b6b;color:#eb6b6b}.btn.danger:hover{background:#eb6b6b;color:#050505}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.thumb{width:56px;height:42px;object-fit:cover;border:1px solid var(--line);display:block;background:#000}
+.thumb.none{display:grid;place-items:center;color:var(--gold);font-size:.6rem;letter-spacing:.1em}
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin:18px 0}
+.toolbar .grow{flex:1}
+.profile{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;align-items:start}
+.panel{border:1px solid var(--line);background:var(--bg);padding:22px}
+.panel h2{margin-top:0!important;font-size:1.4rem}
+.avatar{width:72px;height:72px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;font:1.9rem var(--serif);color:var(--gold);margin-bottom:10px}
+.imgrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.imgrow .thumb{width:96px;height:72px}
+td input.cell{width:88px;padding:6px 8px}
+.row-low{background:rgba(230,185,74,.06)}
+dialog form{margin-top:14px}
+dialog h2{margin:0}

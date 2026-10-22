@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Inventory — DREAM QUEST</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <script>DQAuth.protect('admin')</script>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="side" id="side"></aside>
+        <script>DQAuth.mountSide('inventory')</script>
+        <main class="main">
+            <h1>Inventory</h1>
+            <p class="muted">Quickly update stock and availability. Changes save automatically. To change names, prices or photos, use <a href="products.html">Products</a>.</p>
+
+            <div class="stats">
+                <div class="stat"><b id="a1">0</b><span>Items Listed</span></div>
+                <div class="stat"><b id="a2">0</b><span>Available</span></div>
+                <div class="stat"><b id="a3">0</b><span>Low Stock (10 or less)</span></div>
+                <div class="stat"><b id="a4">0</b><span>Unavailable / Out</span></div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead><tr><th>Item</th><th>Rate</th><th>Stock</th><th>In open orders</th><th>Available for rent</th><th>Status</th></tr></thead>
+                    <tbody id="rows"></tbody>
+                </table>
+            </div>
+            <p class="muted" style="margin-top:12px"><small>“In open orders” counts items in Pending and Confirmed orders (all dates), as a rough guide when adjusting stock.</small></p>
+        </main>
+    </div>
+    <script src="shop.js"></script>
+    <script>
+        (function () {
+            var $ = function (i) { return document.getElementById(i) }, E = DQ.esc;
+            var list = PRODUCTS.map(function (p) { var o = {}; for (var k in p) o[k] = p[k]; return o });
+            function openQty() {
+                var m = {}; DQ.get('dqBookings', []).forEach(function (b) { if (b.status === 'Pending' || b.status === 'Confirmed') (b.items || []).forEach(function (i) { m[i.id] = (m[i.id] || 0) + i.qty }) });
+                return m;
+            }
+            function save(msg) { if (DQ.saveProducts(list)) { if (msg) DQ.toast(msg) } else alert('Could not save changes.'); stats() }
+            function status(p) { return !DQ.isAvail(p) ? [p.avail === false ? 'Unavailable' : 'Out of stock', 'Unavailable'] : p.stock <= 10 ? ['Low stock', 'Low'] : ['In stock', 'Available'] }
+            function stats() {
+                $('a1').textContent = list.length; $('a2').textContent = list.filter(DQ.isAvail).length;
+                $('a3').textContent = list.filter(function (p) { return DQ.isAvail(p) && p.stock <= 10 }).length;
+                $('a4').textContent = list.filter(function (p) { return !DQ.isAvail(p) }).length;
+            }
+            function render() {
+                var oq = openQty();
+                $('rows').innerHTML = list.map(function (p) {
+                    var s = status(p);
+                    return '<tr class="' + (s[1] === 'Low' ? 'row-low' : '') + '" data-id="' + E(p.id) + '"><td>' + E(p.name) + '</td><td>' + DQ.peso(p.price) + ' / ' + E(p.unit) + '</td><td style="white-space:nowrap"><button class="btn sm" data-step="-1" type="button">−</button> <input class="cell" type="number" min="0" step="1" value="' + p.stock + '"> <button class="btn sm" data-step="1" type="button">+</button></td><td>' + (oq[p.id] || 0) + '</td><td><input type="checkbox" class="av"' + (p.avail !== false ? ' checked' : '') + '></td><td><span class="st ' + s[1] + '">' + s[0] + '</span></td></tr>';
+                }).join('');
+                stats();
+            }
+            function find(el) { var tr = el.closest('tr'); return { tr: tr, p: list.filter(function (x) { return x.id === tr.dataset.id })[0] } }
+            function refreshRow(tr, p) { var s = status(p); tr.className = s[1] === 'Low' ? 'row-low' : ''; var st = tr.querySelector('.st'); st.className = 'st ' + s[1]; st.textContent = s[0]; tr.querySelector('.cell').value = p.stock }
+            $('rows').addEventListener('click', function (e) {
+                var b = e.target.closest('[data-step]'); if (!b) return; var r = find(b);
+                r.p.stock = Math.max(0, r.p.stock + parseInt(b.dataset.step, 10)); refreshRow(r.tr, r.p); save();
+            });
+            $('rows').addEventListener('change', function (e) {
+                var r = find(e.target);
+                if (e.target.classList.contains('cell')) { r.p.stock = Math.max(0, parseInt(e.target.value, 10) || 0); refreshRow(r.tr, r.p); save('Stock updated.') }
+                if (e.target.classList.contains('av')) { r.p.avail = e.target.checked; refreshRow(r.tr, r.p); save(r.p.name + (r.p.avail ? ' is now available.' : ' is now unavailable.')) }
+            });
+            render();
+        })();
+    </script>
+</body>
+
+</html>

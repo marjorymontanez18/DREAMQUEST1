@@ -6,18 +6,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Orders — DREAM QUEST</title>
     <link rel="stylesheet" href="style.css">
-    <script>if (sessionStorage.getItem('dqAdmin') !== '1') location.replace('admin.html')</script>
+    <script src="auth.js"></script>
+    <script>DQAuth.protect('admin')</script>
 </head>
 
 <body>
     <div class="app">
-        <aside class="side">
-            <div class="brand"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT ESSENTIALS</small></span></div><a
-                href="dashboard.html">Dashboard</a><a href="bookings.html" class=on>Orders</a><a
-                href="rentals.html">Products</a><a href="rentals.html#chairs">Inventory</a><a
-                href="customers.html">Customers</a><a href="settings.html">Settings</a><a href="index.html">Back to
-                Website</a><a href="admin.html" onclick="sessionStorage.removeItem('dqAdmin')">Log Out</a>
-        </aside>
+        <aside class="side" id="side"></aside>
+        <script>DQAuth.mountSide('orders')</script>
         <main class="main">
             <h1>Orders</h1>
             <p class="muted">Orders placed by customers at checkout appear here, newest first (stored in this browser; see the note in the README for online order delivery).</p>

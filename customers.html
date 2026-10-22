@@ -6,18 +6,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Customers — DREAM QUEST</title>
     <link rel="stylesheet" href="style.css">
-    <script>if (sessionStorage.getItem('dqAdmin') !== '1') location.replace('admin.html')</script>
+    <script src="auth.js"></script>
+    <script>DQAuth.protect('admin')</script>
 </head>
 
 <body>
     <div class="app">
-        <aside class="side">
-            <div class="brand"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT ESSENTIALS</small></span></div><a
-                href="dashboard.html">Dashboard</a><a href="bookings.html">Orders</a><a
-                href="rentals.html">Products</a><a href="rentals.html#chairs">Inventory</a><a href="customers.html"
-                class=on>Customers</a><a href="settings.html">Settings</a><a href="index.html">Back to Website</a><a
-                href="admin.html" onclick="sessionStorage.removeItem('dqAdmin')">Log Out</a>
-        </aside>
+        <aside class="side" id="side"></aside>
+        <script>DQAuth.mountSide('customers')</script>
         <main class="main">
             <h1>Customers</h1>
            
@@ -34,9 +30,19 @@
                     <tbody id="cb"></tbody>
                 </table>
             </div>
-        <div class="empty" id="none"><h3>NO CUSTOMERS YET</h3></div></main>
+        <div class="empty" id="none" style="display:none"><h3>NO CUSTOMERS YET</h3></div></main>
     </div>
 <script src="shop.js"></script>
-<script>(function(){var l=DQ.get('dqBookings',[]),m={};l.forEach(function(b){var k=b.phone||b.name;(m[k]=m[k]||{n:b.name,c:b.phone+(b.email?' · '+b.email:''),o:[]}).o.push(b)});var r=Object.keys(m).map(function(k){var c=m[k];return '<tr><td>'+DQ.esc(c.n)+'</td><td>'+DQ.esc(c.c)+'</td><td>'+c.o.map(function(b){return DQ.esc(b.eventType||'Event')+', '+DQ.esc(b.eventDate)}).join('<br>')+'</td><td>'+c.o.map(function(b){return DQ.esc(b.id)+' ('+DQ.esc(b.status)+')'}).join('<br>')+'</td></tr>'});document.getElementById('cb').innerHTML=r.join('');document.getElementById('none').style.display=r.length?'none':'block'})()</script></body>
+<script>(function(){
+var E=DQ.esc,low=function(x){return String(x||'').trim().toLowerCase()},orders=DQ.get('dqBookings',[]),map={},order=[];
+function slot(k,init){if(!map[k]){map[k]=init;order.push(k)}return map[k]}
+DQAuth.users().filter(function(u){return u.role==='customer'}).forEach(function(u){slot('id:'+u.id,{n:u.name,c:[u.email,u.phone].filter(Boolean).join(' · '),acct:'Registered '+new Date(u.createdAt).toLocaleDateString(),o:[],u:u})});
+orders.forEach(function(b){
+  var k=null;order.forEach(function(x){var u=map[x].u;if(u&&(b.userId===u.id||(low(b.email)&&low(b.email)===low(u.email))))k=x});
+  if(!k)k='guest:'+(b.phone||b.name);
+  slot(k,{n:b.name,c:b.phone+(b.email?' · '+b.email:''),acct:'Guest (no account)',o:[]}).o.push(b)});
+var r=order.map(function(k){var c=map[k];return '<tr><td>'+E(c.n)+'<br><small class="muted">'+E(c.acct)+'</small></td><td>'+E(c.c)+'</td><td>'+(c.o.map(function(b){return E(b.eventType||'Event')+', '+E(b.eventDate)}).join('<br>')||'—')+'</td><td>'+(c.o.map(function(b){return E(b.id)+' ('+E(b.status)+')'}).join('<br>')||'—')+'</td></tr>'});
+document.getElementById('cb').innerHTML=r.join('');document.getElementById('none').style.display=r.length?'none':'block'})()</script>
+</body>
 
 </html>
