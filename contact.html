@@ -29,7 +29,22 @@
             <div class="wrap grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
                 <div>
                     <h2>Contact Us</h2>
-                    <p class="muted">Phone: <span data-cfg="phone"></span><br>Email: <span data-cfg="email"></span><br>Address: <span data-cfg="address"></span></p>
+
+                    <p class="muted">Phone: <span data-cfg="Phone"></span><br>Email: <span
+                            data-cfg="Email"></span><br>Address: <span data-cfg="Address"></span></p>
+                </div>
+                <div>
+                    <h2>Send Us a Message</h2>
+                    <form id="cf" novalidate style="grid-template-columns:1fr">
+                        <label>Full name<input id="cname" autocomplete="name"></label>
+                        <label>Email address<input id="cemail" type="Email" autocomplete="Email"></label>
+                        <label>Mobile number (optional)<input id="cphone" type="tel"
+                                placeholder="09xx xxx xxxx"></label>
+                        <label>Message<textarea id="cmsg" rows="4"></textarea></label>
+                        <p id="cerr" class="alert" role="alert"></p>
+                        <button class="btn fill" type="submit">Send Message</button>
+                    </form>
+                    <div id="cok" class="note" style="display:none"></div>
                 </div>
                 <div>
                     <h2>FAQs</h2>
@@ -43,7 +58,8 @@
                     </details>
                     <details>
                         <summary>How do I know my items are reserved?</summary>
-                        <p>Items are reserved once we confirm your order. We will confirm availability for your date by phone or message.</p>
+                        <p>Items are reserved once we confirm your order. We will confirm availability for your date by
+                            phone or message.</p>
                     </details>
                 </div>
             </div>
@@ -52,12 +68,39 @@
     <footer>
         <div class="wrap">
             <p class="brand" style="justify-content:center">DREAM QUEST — EVENT ESSENTIALS</p>
-           
+
             <p><a href="login.html">Log In / Sign Up</a> · <a href="login.html?role=admin">Admin</a></p>
         </div>
     </footer>
-<script src="auth.js"></script>
-<script src="shop.js"></script>
+    <script src="auth.js"></script>
+    <script src="shop.js"></script>
+    <script>
+        (function () {
+            var $ = function (i) { return document.getElementById(i) };
+            $('cf').addEventListener('submit', function (e) {
+                e.preventDefault();
+                var name = $('cname').value.trim(), email = $('cemail').value.trim(),
+                    phone = $('cphone').value.trim(), msg = $('cmsg').value.trim(),
+                    err = $('cerr'), problem = '';
+
+                if (name.length < 2) problem = 'Please enter your full name.';
+                else if (!/^\S+@\S+\.\S+$/.test(email)) problem = 'Please enter a valid email address.';
+                else if (phone && !/^[0-9+ \-]{7,}$/.test(phone)) problem = 'Mobile number may only contain digits, spaces, + and -.';
+                else if (msg.length < 10) problem = 'Your message should be at least 10 characters.';
+
+                if (problem) { err.className = 'alert err'; err.textContent = problem; return; }
+
+                var list = DQ.get('dqMessages', []);
+                list.push({ id: 'MSG-' + (list.length + 1), name: name, email: email, phone: phone, message: msg, createdAt: new Date().toISOString() });
+                DQ.set('dqMessages', list);
+
+                $('cf').style.display = 'none';
+                var ok = $('cok');
+                ok.style.display = 'block';
+                ok.textContent = 'Thank you, ' + name.split(' ')[0] + '! Your message was sent. We will reply to ' + email + ' soon.';
+            });
+        })();
+    </script>
 </body>
 
 </html>

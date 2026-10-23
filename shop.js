@@ -1,9 +1,9 @@
 /* DREAM QUEST — shop engine (catalog, cart, checkout). Edit CONFIG and PRODUCTS below. */
 var CONFIG_DEFAULTS = {
-  phone: '0900 000 0000',            // <- replace with your real number
-  email: 'hello@dreamquest.com',     // <- replace; customers' orders can be emailed here
-  address: 'Your street, Davao City', // <- replace
-  deliveryFee: 500,                  // flat delivery fee (PHP)
+  Phone: "+639463110354",            // phone number
+  Email: "dreamquest@gmail.com",     // email here
+  Address: "Trading Boulevard, Davao City", // Address
+  DeliveryFee: 500,                  // flat delivery fee (PHP)
   depositRate: 0.2,                  // refundable security deposit (20% of rental subtotal)
   endpoint: ''                       // optional: Formspree/Google Apps Script URL to receive every order online
 };

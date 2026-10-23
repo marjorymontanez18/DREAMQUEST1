@@ -719,3 +719,13 @@ td input.cell{width:88px;padding:6px 8px}
 .row-low{background:rgba(230,185,74,.06)}
 dialog form{margin-top:14px}
 dialog h2{margin:0}
+.alert { padding: 10px 14px; font-size: .88rem; border: 1px solid; display: none; }
+.alert.err { display: block; color: #eb6b6b; border-color: #eb6b6b; background: rgba(235,107,107,.07); }
+/* Why Choose section */
+.why .card{background:linear-gradient(180deg,var(--bg2),#0a0804);padding:30px 24px 28px;position:relative}
+.why .card::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:linear-gradient(90deg,var(--gold),var(--champ));transform:scaleX(.25);transform-origin:left;transition:.4s}
+.why .card:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 14px 30px rgba(212,165,44,.12)}
+.why .card:hover::before{transform:scaleX(1)}
+.why .num{font-family:var(--serif);font-size:2.2rem;color:var(--gold);opacity:.55;line-height:1;display:block;margin-bottom:14px}
+.why .rule{width:64px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:18px auto 14px}
+.why .sub{text-align:center;color:var(--muted);max-width:560px;margin:0 auto 36px;line-height:1.6}
