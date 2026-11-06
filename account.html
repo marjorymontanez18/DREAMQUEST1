@@ -10,53 +10,129 @@
     <script>DQAuth.protect('customer')</script>
 </head>
 
-<body>
-    <div class="app">
-        <aside class="side" id="side"></aside>
-        <script>DQAuth.mountSide('dashboard')</script>
-        <main class="main">
-            <h1>Welcome, <span id="nm"></span></h1>
-            <p class="muted">Here is a summary of your rentals with DREAM QUEST.</p>
+<body data-page="account" class="dash">
+    <header>
+        <nav class="nav"><a class="brand" href="index.html"><span class="dq">DQ</span><span>DREAM QUEST<small>EVENT
+                        ESSENTIALS</small></span></a><input type="checkbox" id="t"><label for="t"
+                class="burger">&#9776;</label>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="rentals.html">Rental Catalog</a></li>
+                <li><a href="packages.html">Packages</a></li>
+                <li><a href="how-it-works.html">How It Works</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a class="btn" href="cart.html">Cart (<span id="cc">0</span>)</a></li>
+            </ul>
+        </nav>
+    </header>
 
+    <section class="dhero">
+        <div class="wrap">
+            <div class="avatar" id="av"></div>
+            <div class="grow">
+                <p class="muted" style="letter-spacing:.25em;font-size:.75rem">CUSTOMER DASHBOARD</p>
+                <h1>Welcome back, <span id="nm"></span></h1>
+                <p class="muted" id="since"></p>
+                <div class="btns"><a class="btn fill" href="rentals.html">Browse Rentals</a><a class="btn" href="cart.html">View Cart</a><a class="btn" href="profile.html">Edit Profile</a></div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="wrap">
             <div class="stats">
                 <div class="stat"><b id="s1">0</b><span>Total Orders</span></div>
                 <div class="stat"><b id="s2">0</b><span>Pending Orders</span></div>
                 <div class="stat"><b id="s3">0</b><span>Confirmed Rentals</span></div>
                 <div class="stat"><b id="s4">₱0</b><span>Total Spent</span></div>
             </div>
-            <div class="btns" style="justify-content:flex-start;margin-top:0">
-                <a class="btn fill" href="rentals.html">Browse Rentals</a><a class="btn" href="cart.html">View Cart</a><a class="btn" href="profile.html">Edit Profile</a>
-            </div>
+        </div>
+    </section>
 
-            <h2 id="orders">My Orders</h2>
-            <div class="tw">
-                <table>
-                    <thead><tr><th>Order No.</th><th>Event</th><th>Event Date</th><th>Total</th><th>Status</th><th></th></tr></thead>
-                    <tbody id="rows"></tbody>
-                </table>
+    <section class="alt" id="nextsec" style="display:none">
+        <div class="wrap">
+            <h2>Your Next Event</h2>
+            <div class="next" id="next"></div>
+        </div>
+    </section>
+
+    <section>
+        <div class="wrap">
+            <h2>Quick Actions</h2>
+            <div class="qa">
+                <a href="rentals.html"><i>&#9830;</i>Rent Items<small>Tables, chairs &amp; linens</small></a>
+                <a href="packages.html"><i>&#10022;</i>Event Packages<small>Ready-made bundles</small></a>
+                <a href="cart.html"><i>&#9776;</i>My Cart<small id="qcart">0 items</small></a>
+                <a href="profile.html"><i>&#9786;</i>My Profile<small>Details &amp; password</small></a>
+                <a href="how-it-works.html"><i>?</i>How It Works<small>Renting step by step</small></a>
+                <a href="contact.html"><i>&#9990;</i>Contact Us<small>Questions &amp; support</small></a>
             </div>
+        </div>
+    </section>
+
+    <section class="alt" id="orders">
+        <div class="wrap">
+            <h2>My Orders</h2>
+            <div class="chips" id="flt"></div>
+            <div class="ocards" id="rows"></div>
             <div class="empty" id="none" style="display:none">
                 <h3>NO ORDERS YET</h3>
                 <p class="muted">Your orders will appear here after checkout.</p>
                 <p><a class="btn fill" href="rentals.html">Start Renting</a></p>
             </div>
+        </div>
+    </section>
 
-            <dialog id="dlg">
-                <h2 id="dt"></h2>
-                <dl class="dl" id="dd"></dl>
-                <div class="bar"><button class="btn danger" id="cancel" type="button">Cancel Order</button><button class="btn" id="cl" type="button">Close</button></div>
-            </dialog>
-        </main>
-    </div>
+    <section>
+        <div class="wrap">
+            <h2>Rent Something New</h2>
+            <p class="muted">Popular pieces to complete your next celebration.</p>
+            <div class="grid" data-cat="featured"></div>
+            <div class="btns"><a class="btn" href="rentals.html">See Full Catalog</a></div>
+        </div>
+    </section>
+
+    <section class="alt">
+        <div class="wrap">
+            <h2>My Details</h2>
+            <p class="muted">We use these for delivery and to contact you about your orders.</p>
+            <div class="acct" id="acct"></div>
+            <div class="btns" style="justify-content:flex-start"><a class="btn" href="profile.html">Edit Profile</a></div>
+        </div>
+    </section>
+
+    <dialog id="dlg">
+        <h2 id="dt"></h2>
+        <dl class="dl" id="dd"></dl>
+        <div class="bar"><button class="btn danger" id="cancel" type="button">Cancel Order</button><button class="btn" id="cl" type="button">Close</button></div>
+    </dialog>
+
+    <footer>
+        <div class="wrap">
+            <p class="brand" style="justify-content:center">DREAM QUEST — EVENT ESSENTIALS</p>
+            <p><a href="index.html">Back to Website</a> · <a href="#" onclick="return DQAuth.logout()">Log Out</a></p>
+        </div>
+    </footer>
+
     <script src="shop.js"></script>
     <script>
         (function () {
-            var me = DQAuth.user(), $ = function (i) { return document.getElementById(i) }, cur = null;
-            $('nm').textContent = me.name.split(' ')[0];
+            var me = DQAuth.user(), $ = function (i) { return document.getElementById(i) }, E = DQ.esc, cur = null, flt = 'All';
+            var first = me.name.split(' ')[0];
+            $('nm').textContent = first; $('av').textContent = me.name.trim().charAt(0).toUpperCase();
+            $('since').textContent = me.createdAt ? 'Member since ' + new Date(me.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : '';
+            $('qcart').textContent = DQ.cart().reduce(function (s, i) { return s + i.qty }, 0) + ' items';
             var low = function (s) { return String(s || '').trim().toLowerCase() };
             function mine() {
                 return DQ.get('dqBookings', []).filter(function (b) { return b.userId === me.id || (low(b.userEmail || b.email) && low(b.userEmail || b.email) === low(me.email)) })
                     .sort(function (a, b) { return String(b.createdAt).localeCompare(String(a.createdAt)) });
+            }
+            function items(b) { return b.items && b.items.length ? b.items.map(function (i) { return i.name + ' × ' + i.qty }).join(', ') : String(b.quantities || '').split('\n').join(', ') }
+            function nextEvent(l) {
+                var t = new Date(); t.setHours(0, 0, 0, 0);
+                return l.filter(function (b) { return (b.status === 'Pending' || b.status === 'Confirmed') && b.eventDate && new Date(b.eventDate) >= t })
+                    .sort(function (a, b) { return new Date(a.eventDate) - new Date(b.eventDate) })[0];
             }
             function render() {
                 var l = mine(), paid = l.filter(function (b) { return b.status === 'Confirmed' || b.status === 'Completed' });
@@ -64,19 +140,30 @@
                 $('s2').textContent = l.filter(function (b) { return b.status === 'Pending' }).length;
                 $('s3').textContent = l.filter(function (b) { return b.status === 'Confirmed' }).length;
                 $('s4').textContent = DQ.peso(paid.reduce(function (s, b) { return s + (b.total || 0) }, 0));
-                $('none').style.display = l.length ? 'none' : 'block';
-                $('rows').innerHTML = l.map(function (b) {
-                    return '<tr><td>' + DQ.esc(b.id) + '</td><td>' + DQ.esc(b.eventName || b.eventType || '—') + '</td><td>' + DQ.esc(b.eventDate) + '</td><td>' + DQ.peso(b.total || 0) + '</td><td><span class="st ' + DQ.esc(b.status) + '">' + DQ.esc(b.status) + '</span></td><td><button class="btn sm" data-id="' + DQ.esc(b.id) + '" type="button">View</button></td></tr>';
-                }).join('');
+                var n = nextEvent(l); $('nextsec').style.display = n ? '' : 'none';
+                if (n) {
+                    var t = new Date(); t.setHours(0, 0, 0, 0); var d = Math.round((new Date(n.eventDate) - t) / 864e5);
+                    $('next').innerHTML = '<div class="days"><b>' + d + '</b><span>' + (d === 1 ? 'day to go' : 'days to go') + '</span></div><div class="info"><small>' + E(n.status) + ' · ' + E(n.id) + '</small><h3>' + E(n.eventName || n.eventType || 'Your event') + '</h3><p class="muted">' + E(new Date(n.eventDate).toDateString()) + ' · ' + E(n.service || 'Delivery') + '</p></div><button class="btn" data-id="' + E(n.id) + '" type="button">View Order</button>';
+                }
+                var tabs = ['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'];
+                $('flt').innerHTML = tabs.map(function (s) { var c = s === 'All' ? l.length : l.filter(function (b) { return b.status === s }).length; return '<a href="#orders" data-f="' + s + '"' + (s === flt ? ' class="on"' : '') + '>' + s + ' (' + c + ')</a>' }).join('');
+                var v = flt === 'All' ? l : l.filter(function (b) { return b.status === flt });
+                $('none').style.display = l.length ? 'none' : 'block'; $('flt').style.display = l.length ? '' : 'none';
+                $('rows').innerHTML = v.length || !l.length ? v.map(function (b) {
+                    return '<article class="ocard"><div class="top"><span class="oid">' + E(b.id) + '</span><span class="st ' + E(b.status) + '">' + E(b.status) + '</span></div><h3>' + E(b.eventName || b.eventType || 'Rental order') + '</h3><p>' + E(b.eventDate || '—') + ' · ' + E(b.service || '') + '</p><p>' + E(items(b)) + '</p><div class="tot"><span class="price">' + DQ.peso(b.total || 0) + '</span><button class="btn sm" data-id="' + E(b.id) + '" type="button">View Details</button></div></article>';
+                }).join('') : '<p class="muted">No ' + flt.toLowerCase() + ' orders.</p>';
             }
-            function row(k, v) { return '<dt>' + k + '</dt><dd>' + DQ.esc(v || '—') + '</dd>' }
-            $('rows').addEventListener('click', function (e) {
-                var id = e.target.getAttribute('data-id'); if (!id) return;
+            function row(k, v) { return '<dt>' + k + '</dt><dd>' + E(v || '—') + '</dd>' }
+            function open(id) {
                 cur = mine().filter(function (b) { return b.id === id })[0]; if (!cur) return;
                 $('dt').textContent = 'Order ' + cur.id;
                 $('dd').innerHTML = row('Status', cur.status) + row('Event', (cur.eventName || '') + (cur.eventType ? ' (' + cur.eventType + ')' : '')) + row('Event date', cur.eventDate) + row('Rental period', (cur.start || '—') + ' to ' + (cur.end || '—')) + row(cur.service || 'Service', cur.address) + row('Items', cur.quantities) + row('Total', DQ.peso(cur.total || 0) + ' (+ ' + DQ.peso(cur.deposit || 0) + ' refundable deposit)') + row('Payment', cur.payment) + row('Placed on', cur.createdAt ? new Date(cur.createdAt).toLocaleString() : '');
                 $('cancel').style.display = cur.status === 'Pending' ? '' : 'none';
                 $('dlg').showModal();
+            }
+            document.addEventListener('click', function (e) {
+                var b = e.target.closest('[data-id]'); if (b) return open(b.getAttribute('data-id'));
+                var f = e.target.closest('[data-f]'); if (f) { e.preventDefault(); flt = f.getAttribute('data-f'); render() }
             });
             $('cancel').onclick = function () {
                 if (!cur || !confirm('Cancel order ' + cur.id + '?')) return;
@@ -85,6 +172,7 @@
                 DQ.set('dqBookings', all); $('dlg').close(); render();
             };
             $('cl').onclick = function () { $('dlg').close() };
+            $('acct').innerHTML = [['Full name', me.name], ['Email', me.email], ['Mobile', me.phone], ['Address', me.address]].map(function (r) { return '<div><small>' + r[0] + '</small><b>' + E(r[1] || 'Not added yet') + '</b></div>' }).join('');
             render();
         })();
     </script>

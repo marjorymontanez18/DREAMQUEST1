@@ -19,11 +19,11 @@
            
             <h2>Business Information</h2>
             <form id="fc" style="max-width:640px">
-                <label>Phone<input id="phone" required></label>
-                <label>Email<input id="email" type="email" required></label>
-                <label class="full">Address<input id="address" required></label>
-                <label>Delivery fee (₱)<input id="deliveryFee" type="number" min="0" step="any" required></label>
-                <label>Security deposit (% of rental)<input id="deposit" type="number" min="0" max="100" step="any" required></label>
+                <label>Phone<input id="Phone" required></label>
+                <label>Email<input id="Email" type="Email" required></label>
+                <label class="full">Address<input id="Address" required></label>
+                <label>Delivery fee (₱)<input id="DeliveryFee" type="number" min="0" step="any" required></label>
+                <label>Security deposit (% of rental)<input id="Deposit" type="number" min="0" max="100" step="any" required></label>
                 <p id="cmsg" class="alert full"></p>
                 <div class="full bar" style="margin:0"><button class="btn fill" type="submit">Save Settings</button><button class="btn" id="rs" type="button">Reset to Defaults</button></div>
             </form>
@@ -36,10 +36,10 @@
     </div>
 <script src="shop.js"></script>
 <script>document.getElementById("pt").innerHTML=PRODUCTS.map(function(p){return "<tr><td>"+p.name+"</td><td>"+DQ.peso(p.price)+" / "+p.unit+" / day</td><td>"+p.min+"</td><td>"+p.stock+"</td></tr>"}).join("")</script><script>(function(){var $=function(i){return document.getElementById(i)};
-function fill(){$('phone').value=CONFIG.phone;$('email').value=CONFIG.email;$('address').value=CONFIG.address;$('deliveryFee').value=CONFIG.deliveryFee;$('deposit').value=Math.round(CONFIG.depositRate*10000)/100;$('dfee').textContent=DQ.peso(CONFIG.deliveryFee);$('dep').textContent=Math.round(CONFIG.depositRate*10000)/100+'%'}
+function fill(){$('phone').value=CONFIG.Phone;$('email').value=CONFIG.Email;$('address').value=CONFIG.Address;
 fill();
 $('fc').addEventListener('submit',function(e){e.preventDefault();var m=$('cmsg');
-var c={phone:$('phone').value.trim(),email:$('email').value.trim(),address:$('address').value.trim(),deliveryFee:parseFloat($('deliveryFee').value),depositRate:parseFloat($('deposit').value)/100};
+var c={Phone:$('phone').value.trim(),Email:$('email').value.trim(),Address:$('address').value.trim(),deliveryFee:parseFloat($('deliveryFee').value),depositRate:parseFloat($('deposit').value)/100};
 if(!(c.deliveryFee>=0)||!(c.depositRate>=0&&c.depositRate<=1)){m.className='alert full err';m.textContent='Please enter a valid delivery fee and deposit percentage.';return}
 if(DQ.saveConfig(c)){for(var k in c)CONFIG[k]=c[k];fill();m.className='alert full ok';m.textContent='Settings saved. They now apply across the website.'}else{m.className='alert full err';m.textContent='Could not save settings.'}});
 $('rs').onclick=function(){if(confirm('Restore the original business settings?')){localStorage.removeItem('dqConfig');location.reload()}}})()</script>
