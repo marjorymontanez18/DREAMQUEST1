@@ -1,0 +1,14 @@
+﻿{
+  "name": "dreamquest-db",
+  "version": "1.0.0",
+  "description": "Node.js SQLite database for DREAM QUEST inventory and customer accounts",
+  "main": "db.js",
+  "scripts": {
+    "init-db": "node init-db.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "sqlite3": "^5.1.7"
+  }
+}

@@ -1,0 +1,6 @@
+node_modules/
+.env
+npm-debug.log*
+dreamquest.db
+dreamquest.db-shm
+dreamquest.db-wal
