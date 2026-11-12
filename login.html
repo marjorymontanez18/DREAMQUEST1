@@ -619,6 +619,147 @@
         .popup p { margin: 0 0 18px; color: var(--mut) }
         .popup .row { justify-content: center; flex-wrap: wrap }
         @keyframes pop { from { transform: scale(.92); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+
+        /* ---------- admin overview ---------- */
+        .ovh {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            flex-wrap: wrap
+        }
+
+        .ovh span {
+            font-size: 13px
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 16px
+        }
+
+        .kpi {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px
+        }
+
+        .kpi small {
+            color: var(--gold);
+            font-size: 11px;
+            letter-spacing: .12em;
+            text-transform: uppercase
+        }
+
+        .kpi b {
+            font: 600 28px Georgia, serif;
+            color: var(--lt)
+        }
+
+        .kpi span {
+            font-size: 12px
+        }
+
+        .kpi.warn {
+            border-color: var(--gold)
+        }
+
+        .ovg {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 14px;
+            margin-top: 14px
+        }
+
+        .pn {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            padding: 18px
+        }
+
+        .pn h3 {
+            font-size: 16px;
+            margin-bottom: 14px
+        }
+
+        .bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 170px;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--lt), var(--gold));
+            min-height: 0;
+            transition: opacity .2s
+        }
+
+        .bar:hover {
+            opacity: .75
+        }
+
+        .bar.z {
+            height: 2px !important;
+            background: var(--line)
+        }
+
+        .axis {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-top: 6px
+        }
+
+        .al {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px
+        }
+
+        .al:last-child {
+            border-bottom: 0
+        }
+
+        .bd {
+            font-style: normal;
+            font-size: 12px;
+            padding: 2px 10px;
+            border: 1px solid;
+            white-space: nowrap
+        }
+
+        .bd.low {
+            color: #e6b94a;
+            border-color: #e6b94a;
+            background: rgba(230, 185, 74, .1)
+        }
+
+        .bd.out {
+            color: #eb6b6b;
+            border-color: #eb6b6b;
+            background: rgba(235, 107, 107, .1)
+        }
+
+        .muted2 {
+            font-size: 14px
+        }
+
+        @media (max-width:760px) {
+            .ovg {
+                grid-template-columns: 1fr
+            }
+        }
     </style>
 </head>
 
@@ -663,7 +804,7 @@
         const peso = n => "₱" + Number(n).toLocaleString();
         const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
         const STATUS = ["Pending", "Confirmed", "Completed", "Cancelled"];
-        let view = "welcome", tab = "catalog", msg = "", menuOpen = false, flash = "";
+        let view = "welcome", tab = "catalog", msg = "", menuOpen = false, flash = "", ovAll = false;
         { const qp = new URLSearchParams(location.search), r = qp.get("role"); if (r === "admin") view = "alogin"; else if (r === "customer") view = qp.get("mode") === "signup" ? "csignup" : "clogin" }
         document.addEventListener("click", e => { if (menuOpen && !e.target.closest(".pm")) { menuOpen = false; render() } });
         const me = () => db.users.find(u => u.id === db.session);
@@ -674,7 +815,7 @@
         function render() {
             refresh();
             const u = me();
-            if (u && u.role === "admin" && view !== "admin") { view = "admin"; if (!["orders", "products", "customers"].includes(tab)) tab = "orders" }
+            if (u && u.role === "admin" && view !== "admin") { view = "admin"; if (!["overview", "products", "customers"].includes(tab)) tab = "overview" }
             if (u && u.role === "customer" && view !== "customer") { view = "customer"; tab = "home" }
             if (!u && (view === "admin" || view === "customer")) view = "welcome";
             const A = $("app");
@@ -707,7 +848,7 @@
         function login(ev, admin) {
             ev.preventDefault();
             DQAuth.login({ id: $("e").value, password: $("p").value, role: admin ? "admin" : "customer", remember: true })
-                .then(u => { refresh(); tab = admin ? "orders" : "home"; view = admin ? "admin" : "customer"; render(); popup("ok", "Login successful", "Welcome back, " + u.name.split(" ")[0] + "!") })
+                .then(u => { refresh(); tab = admin ? "overview" : "home"; view = admin ? "admin" : "customer"; render(); popup("ok", "Login successful", "Welcome back, " + u.name.split(" ")[0] + "!") })
                 .catch(err => { msg = ""; render(); popup("err", "Login failed", err.message) });
             return false;
         }
@@ -821,19 +962,43 @@
         /* ---------- ADMIN ---------- */
         function adminUI(u) {
             const cust = db.users.filter(x => x.role === "customer"); let body = "";
-            if (tab === "orders") {
-                const rev = db.orders.filter(o => ["Confirmed", "Completed", "Delivered", "Returned"].includes(o.status)).reduce((s, o) => s + o.total, 0);
-                body = `<h2>Orders</h2><div class="stats"><div><b>${db.orders.length}</b>Total orders</div><div><b>${db.orders.filter(o => o.status === "Pending").length}</b>Pending</div><div><b>${peso(rev)}</b>Confirmed revenue</div></div>` +
-                    (!db.orders.length ? `<div class="empty">No orders yet.</div>` : `<div class="tw"><table><tr><th>Order</th><th>Customer</th><th>Event</th><th>Items</th><th>Total</th><th>Status</th></tr>${[...db.orders].reverse().map(o => `<tr><td>${o.id}</td><td>${esc(o.customer)}<br><small>${esc(o.phone)}</small></td><td>${esc(o.date)}<br><small>${o.days} day(s) · ${esc(o.address)}</small></td><td>${o.items.map(i => esc(i.name) + " ×" + i.qty).join(", ")}</td><td>${peso(o.total)}</td>
+            if (tab === "overview") {
+                const REV = ["Confirmed", "Completed", "Delivered", "Returned"];
+                const paid = db.orders.filter(o => REV.includes(o.status));
+                const rev = paid.reduce((s, o) => s + o.total, 0);
+                const pending = db.orders.filter(o => o.status === "Pending").length;
+                const live = db.products.filter(p => p.available && p.stock > 0).length;
+                const alerts = db.products.filter(p => p.stock <= 10).sort((a, b) => a.stock - b.stock);
+                /* revenue per day, last 14 days (by the day the order was placed) */
+                const key = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+                const days = [], today = new Date(); today.setHours(0, 0, 0, 0);
+                for (let i = 13; i >= 0; i--) { const d = new Date(today); d.setDate(d.getDate() - i); days.push({ d, k: key(d), v: 0 }) }
+                paid.forEach(o => { const c = new Date(o.createdAt || o.created); if (!isNaN(c)) { const x = days.find(y => y.k === key(c)); if (x) x.v += o.total } });
+                const max = Math.max(...days.map(x => x.v)), fmt = d => d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+                const chart = max ? `<div class="bars">${days.map(x => `<div class="bar${x.v ? "" : " z"}" style="height:${x.v ? Math.max(6, x.v / max * 100) : 0}%" title="${fmt(x.d)}: ${peso(x.v)}"></div>`).join("")}</div><div class="axis"><span>${fmt(days[0].d)}</span><span>${fmt(days[13].d)}</span></div>` : `<div class="empty" style="margin:0">No confirmed revenue in the last 14 days.</div>`;
+                const list = ovAll ? [...db.orders].reverse() : [...db.orders].reverse().slice(0, 5);
+                body = `<div class="ovh"><h2>Overview</h2><span>Orders, revenue and stock at a glance</span></div>
+  <div class="kpis">
+    <div class="kpi"><small>Revenue</small><b>${peso(rev)}</b><span>${paid.length} confirmed order${paid.length === 1 ? "" : "s"}</span></div>
+    <div class="kpi"><small>Active products</small><b>${live}</b><span>of ${db.products.length} listed</span></div>
+    <div class="kpi${alerts.length ? " warn" : ""}"><small>Needs restock</small><b>${alerts.length}</b><span>low or out of stock</span></div>
+    <div class="kpi${pending ? " warn" : ""}"><small>New orders</small><b>${pending}</b><span>awaiting review</span></div>
+  </div>
+  <div class="ovg">
+    <div class="pn"><h3>Revenue · last 14 days</h3>${chart}</div>
+    <div class="pn"><h3>Stock alerts</h3>${alerts.length ? alerts.map(p => `<div class="al"><span>${esc(p.name)}</span><i class="bd ${p.stock <= 0 ? "out" : "low"}">${Math.max(0, p.stock)} left</i></div>`).join("") : `<div class="muted2">All items are well stocked.</div>`}</div>
+  </div>
+  <div class="sec"><h2>Latest orders</h2>${db.orders.length > 5 ? `<a onclick="ovAll=!ovAll;render()">${ovAll ? "Show less" : "View all " + db.orders.length + " →"}</a>` : ""}</div>` +
+                    (!db.orders.length ? `<div class="empty">No orders yet.</div>` : `<div class="tw"><table><tr><th>Order</th><th>Customer</th><th>Event</th><th>Items</th><th>Total</th><th>Status</th></tr>${list.map(o => `<tr><td>${o.id}</td><td>${esc(o.customer)}<br><small>${esc(o.phone)}</small></td><td>${esc(o.date)}<br><small>${o.days} day(s) · ${esc(o.address)}</small></td><td>${o.items.map(i => esc(i.name) + " ×" + i.qty).join(", ")}</td><td>${peso(o.total)}</td>
     <td><select onchange="setStatus('${o.id}',this.value)">${STATUS.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("")}</select></td></tr>`).join("")}</table></div>`);
             } else if (tab === "products") {
-                body = `<h2>Products</h2><div class="tw"><table><tr><th>Name</th><th>Price/day (₱)</th><th>Stock</th><th>Available</th><th></th></tr>${db.products.map(p => `<tr><td><input value="${esc(p.name)}" onchange="editP('${p.id}','name',this.value)"></td><td><input type="number" min="0" value="${p.price}" onchange="editP('${p.id}','price',+this.value)"></td><td><input type="number" min="0" value="${p.stock}" onchange="editP('${p.id}','stock',+this.value)"></td><td><input type="checkbox" ${p.available ? "checked" : ""} onchange="editP('${p.id}','available',this.checked)" style="width:auto"></td><td><button class="red sm" onclick="delP('${p.id}')">Delete</button></td></tr>`).join("")}</table></div>
+                body = `<h2>Inventory Management</h2><div class="tw"><table><tr><th>Name</th><th>Price/day (₱)</th><th>Stock</th><th>Available</th><th></th></tr>${db.products.map(p => `<tr><td><input value="${esc(p.name)}" onchange="editP('${p.id}','name',this.value)"></td><td><input type="number" min="0" value="${p.price}" onchange="editP('${p.id}','price',+this.value)"></td><td><input type="number" min="0" value="${p.stock}" onchange="editP('${p.id}','stock',+this.value)"></td><td><input type="checkbox" ${p.available ? "checked" : ""} onchange="editP('${p.id}','available',this.checked)" style="width:auto"></td><td><button class="red sm" onclick="delP('${p.id}')">Delete</button></td></tr>`).join("")}</table></div>
     <form class="box" style="max-width:none;margin-left:0" onsubmit="return addP(event)"><h3>Add product</h3><div class="two"><div><label>Name</label><input id="pn" required></div><div><label>Price/day</label><input id="pp" type="number" min="0" required></div></div><label>Stock</label><input id="ps" type="number" min="0" required><div style="height:12px"></div><button>Add product</button></form>`;
             } else {
                 body = `<h2>Customers</h2>` + (!cust.length ? `<div class="empty">No customers yet.</div>` : `<div class="tw"><table><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th></th></tr>${cust.map(c => `<tr><td>${esc(c.name)}</td><td>${esc(c.email)}</td><td>${esc(c.phone)}</td><td>${db.orders.filter(o => o.userId === c.id).length}</td><td><button class="red sm" onclick="delC('${c.id}')">Remove</button></td></tr>`).join("")}</table></div>`) +
                     `<form class="box" style="max-width:none;margin-left:0" onsubmit="return admPass(event)"><h3>Change admin password</h3><label>Current password</label><input id="cap" type="password" required><label>New password (min 6)</label><input id="ap" type="password" minlength="6" required><div class="err" style="color:var(--lt)">${esc(msg)}</div><button>Update password</button></form>`;
             }
-            $("app").innerHTML = shell(u, [["orders", "Orders"], ["products", "Products"], ["customers", "Customers"]]) + `<main>${body}</main>`;
+            $("app").innerHTML = shell(u, [["overview", "Overview"], ["products", "Inventory"], ["customers", "Customers"]]) + `<main>${body}</main>`;
         }
         function editP(id, k, v) { const p = db.products.find(x => x.id === id); if (p) { p[k] = v; pDirty = true; save() } }
         function delP(id) { if (confirm("Delete this product?")) { db.products = db.products.filter(p => p.id !== id); db.cart = db.cart.filter(c => c.pid !== id); pDirty = true; save(); render() } }
